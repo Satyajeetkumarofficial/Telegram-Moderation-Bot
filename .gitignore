@@ -51,3 +51,5 @@ env/
 # OS specific
 .DS_Store
 Thumbs.db
+
+digest.txt
