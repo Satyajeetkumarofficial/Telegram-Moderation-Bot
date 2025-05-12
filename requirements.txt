@@ -1,0 +1,9 @@
+pyrogram
+fastapi
+uvicorn
+sqlalchemy
+asyncpg
+python-dotenv
+pydantic
+alembic
+tgcrypto
