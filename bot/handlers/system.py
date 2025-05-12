@@ -1,11 +1,12 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message, ChatMemberUpdated
 from pyrogram.enums import ChatMemberStatus
+from pyrogram.types import Message, ChatMemberUpdated
 from sqlalchemy.future import select
+
+from bot.utils import log_action, check_cooldown, is_admin, is_owner
 from database.connection import get_db
 from database.models import GroupConfig
-from bot.utils import log_action, check_cooldown, is_admin, is_owner
-import asyncio
+
 
 @Client.on_message(filters.command("ping"))
 async def ping(client: Client, message: Message):
@@ -167,8 +168,12 @@ async def set_welcome(client: Client, message: Message):
             )
 
             await message.reply("Welcome message set successfully.")
+            return None
+        return None
     except Exception as e:
         await message.reply(f"Error: {str(e)}")
+        return None
+
 
 @Client.on_message(filters.command("setgoodbye") & filters.group)
 async def set_goodbye(client: Client, message: Message):

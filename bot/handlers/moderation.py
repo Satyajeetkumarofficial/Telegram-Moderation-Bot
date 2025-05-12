@@ -1,16 +1,17 @@
+import asyncio
+import time
+from datetime import datetime
+
 from pyrogram import Client, filters
+from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import ChatAdminRequired, UserAdminInvalid, FloodWait
 from pyrogram.types import Message, ChatPermissions
-from pyrogram.enums import ChatMemberStatus
-from bot.utils import is_owner, get_target_user, bot_is_admin, log_action, check_cooldown, is_admin
-from datetime import datetime, timedelta
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
+from bot.utils import is_owner, get_target_user, bot_is_admin, log_action, check_cooldown, is_admin
 from database.connection import get_db
 from database.models import Warning, GroupConfig
-import time
-import asyncio
-import os
+
 
 @Client.on_message(filters.command("kick") & filters.group)
 async def kick(client: Client, message: Message):
@@ -112,15 +113,21 @@ async def ban(client: Client, message: Message):
             )
 
         await message.reply(f"User banned.")
+        return None
     except UserAdminInvalid:
         await message.reply("Cannot ban this user; they may be an admin.")
+        return None
     except ChatAdminRequired:
         await message.reply("I need admin rights to perform this action.")
+        return None
     except FloodWait as e:
         await asyncio.sleep(e.value)
         await message.reply(f"Rate limited. Please try again in {e.value} seconds.")
+        return None
     except Exception as e:
         await message.reply(f"Error: {str(e)}")
+        return None
+
 
 @Client.on_message(filters.command("mute") & filters.group)
 async def mute(client: Client, message: Message):

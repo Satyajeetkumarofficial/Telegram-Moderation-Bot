@@ -1,12 +1,13 @@
 import os
 import time
-from typing import Dict, Tuple
 from datetime import datetime
+from typing import Dict, Tuple
 
-from pyrogram.types import Message, User
 from pyrogram import Client
 from pyrogram.enums import ChatMemberStatus
+from pyrogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from database.models import ModerationLog
 
 # Command cooldown: user_id -> (command, timestamp)
