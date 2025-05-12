@@ -3,6 +3,7 @@ import logging
 from sqlalchemy.ext.asyncio import create_async_engine
 from dotenv import load_dotenv
 import os
+import time
 
 from database.connection import Base
 
@@ -16,10 +17,7 @@ logger = logging.getLogger(__name__)
 
 async def init_db():
     """Initialize the database and create tables"""
-    # Load environment variables
     load_dotenv()
-
-    # Get database URL from environment variables
     DATABASE_URL = os.getenv("DATABASE_URL")
 
     if not DATABASE_URL:
@@ -27,21 +25,22 @@ async def init_db():
         return
 
     logger.info(f"Connecting to database: {DATABASE_URL}")
-
-    # Create async engine
     engine = create_async_engine(DATABASE_URL, echo=True)
 
-    try:
-        # Create tables
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-
-        logger.info("Database tables created successfully")
-    except Exception as e:
-        logger.error(f"Error creating database tables: {str(e)}")
-    finally:
-        # Close engine
-        await engine.dispose()
+    max_retries = 10
+    for attempt in range(1, max_retries + 1):
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info("Database tables created successfully")
+            break
+        except Exception as e:
+            logger.error(f"Attempt {attempt}: Error creating database tables: {e}")
+            if attempt == max_retries:
+                logger.error("Max retries reached. Exiting.")
+                raise
+            time.sleep(3)  # wait before retrying
+    await engine.dispose()
 
 
 if __name__ == "__main__":
